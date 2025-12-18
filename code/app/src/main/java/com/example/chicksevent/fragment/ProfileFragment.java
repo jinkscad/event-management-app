@@ -20,6 +20,7 @@ import com.example.chicksevent.R;
 import com.example.chicksevent.databinding.FragmentProfileEntrantBinding;
 import com.example.chicksevent.misc.FirebaseService;
 import com.example.chicksevent.misc.User;
+import com.example.chicksevent.util.StringUtils;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 
@@ -253,15 +254,6 @@ public class ProfileFragment extends Fragment {
         Toast.makeText(getContext(), "You are Deleted RIP :(", Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Utility method to safely convert a {@link CharSequence} to a trimmed string.
-     *
-     * @param cs the input character sequence
-     * @return trimmed string, or empty string if input is {@code null}
-     */
-    private static String s(CharSequence cs) {
-        return cs == null ? "" : cs.toString().trim();
-    }
 
     /**
      * Convenience method to display a short toast message.

@@ -39,6 +39,8 @@ import com.example.chicksevent.misc.FirebaseService;
 import com.example.chicksevent.misc.User;
 import com.example.chicksevent.util.FirebaseStorageHelper;
 import com.example.chicksevent.util.QRCodeGenerator;
+import com.example.chicksevent.util.StringUtils;
+import com.example.chicksevent.util.AppConstants;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -262,23 +264,23 @@ public class CreateEventFragment extends Fragment {
      */
     private void createEventFromForm() {
         // Read inputs
-        String name  = s(binding.etEventName.getText());
-        String desc  = s(binding.etEventDescription.getText());
+        String name  = StringUtils.trim(binding.etEventName.getText());
+        String desc  = StringUtils.trim(binding.etEventDescription.getText());
 
-        String startDateInput = s(binding.etEventStartDate.getText());
-        String startTimeInput = s(binding.etStartTime.getText());
+        String startDateInput = StringUtils.trim(binding.etEventStartDate.getText());
+        String startTimeInput = StringUtils.trim(binding.etStartTime.getText());
         String startAMPM = binding.spinnerAmpm1.getSelectedItem().toString();
-        String endDateInput = s(binding.etEventEndDate.getText());
-        String endTimeInput = s(binding.etEndTime.getText());
+        String endDateInput = StringUtils.trim(binding.etEventEndDate.getText());
+        String endTimeInput = StringUtils.trim(binding.etEndTime.getText());
         String endAMPM = binding.spinnerAmpm2.getSelectedItem().toString();
-        String regStart = s(binding.etStartDate.getText()); // Registration Start (from your UI)
-        String regEnd = s(binding.etEndDate.getText()); // Registration End (from your UI)
-        String tagText = s(binding.etEventTag.getText()); // event tag
+        String regStart = StringUtils.trim(binding.etStartDate.getText()); // Registration Start (from your UI)
+        String regEnd = StringUtils.trim(binding.etEndDate.getText()); // Registration End (from your UI)
+        String tagText = StringUtils.trim(binding.etEventTag.getText()); // event tag
 
         // Optional max entrants with validation
-        int entrantLimit = 999;
+        int entrantLimit = AppConstants.UNLIMITED_ENTRANTS;
         if (binding.cbLimitWaitingList.isChecked()) {
-            String max = s(binding.etMaxEntrants.getText());
+            String max = StringUtils.trim(binding.etMaxEntrants.getText());
             if (!TextUtils.isEmpty(max)) {
                 if (!max.matches("\\d+")) {
                     toast("Please enter numbers only for max entrants");
@@ -327,7 +329,7 @@ public class CreateEventFragment extends Fragment {
         }
 
         // Validate date format MM-DD-YYYY
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.DATE_FORMAT_INPUT, Locale.US);
         sdf.setLenient(false);
         Date startDate, endDate;
         try {
@@ -350,11 +352,11 @@ public class CreateEventFragment extends Fragment {
         }
 
         // Validate time format HH:MM
-        if (!startTimeInput.matches("\\d{2}:\\d{2}")) {
+        if (!startTimeInput.matches(AppConstants.TIME_FORMAT_PATTERN)) {
             toast("Please select a start time");
             return;
         }
-        if (!endTimeInput.matches("\\d{2}:\\d{2}")) {
+        if (!endTimeInput.matches(AppConstants.TIME_FORMAT_PATTERN)) {
             toast("Please select an end time");
             return;
         }
@@ -745,15 +747,6 @@ public class CreateEventFragment extends Fragment {
         pickImageLauncher.launch(intent);
     }
 
-    /**
-     * Utility helper to safely trim CharSequence values.
-     *
-     * @param cs The CharSequence to trim.
-     * @return The trimmed String or an empty string if null.
-     */
-    private static String s(CharSequence cs) {
-        return cs == null ? "" : cs.toString().trim();
-    }
 
     /**
      * Displays a short {@link Toast} message.

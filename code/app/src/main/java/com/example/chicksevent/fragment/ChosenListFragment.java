@@ -25,6 +25,7 @@ import com.example.chicksevent.misc.Entrant;
 import com.example.chicksevent.misc.FirebaseService;
 import com.example.chicksevent.misc.Organizer;
 import com.example.chicksevent.misc.User;
+import com.example.chicksevent.util.StringUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -230,15 +231,6 @@ public class ChosenListFragment extends Fragment {
     }
 
 
-    /**
-     * Utility method to safely convert a {@link CharSequence} to a trimmed string.
-     *
-     * @param cs the input character sequence
-     * @return trimmed string, or empty string if input is {@code null}
-     */
-    private static String s(CharSequence cs) {
-        return cs == null ? "" : cs.toString().trim();
-    }
 
     /**
      * Convenience method to display a short toast message.

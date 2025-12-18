@@ -22,6 +22,7 @@ import com.example.chicksevent.databinding.FragmentAdminHomeBinding;
 import com.example.chicksevent.misc.FirebaseService;
 import com.example.chicksevent.misc.Notification;
 import com.example.chicksevent.misc.User;
+import com.example.chicksevent.util.StringUtils;
 
 import java.util.ArrayList;
 
@@ -185,9 +186,6 @@ public class AdminHomeFragment extends Fragment {
      * @param cs The CharSequence to convert; may be null.
      * @return A non-null trimmed string; empty if input is null.
      */
-    private static String s(CharSequence cs) {
-        return cs == null ? "" : cs.toString().trim();
-    }
 
     /**
      * Displays a short toast message.
