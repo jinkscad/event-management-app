@@ -123,9 +123,6 @@ The app requires the following permissions:
 - `ACCESS_COARSE_LOCATION`: For approximate location
 - `CAMERA`: For QR code scanning
 
-## Known Issues
-
-See [IMPROVEMENTS.md](IMPROVEMENTS.md) for a comprehensive list of known issues and improvement suggestions.
 
 ## License
 
