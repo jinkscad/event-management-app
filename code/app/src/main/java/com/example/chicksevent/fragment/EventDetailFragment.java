@@ -483,7 +483,7 @@ public class EventDetailFragment extends Fragment {
                                 // Set TextView
                                 binding.tvDate.setText(display);
                             } catch (ParseException e) {
-                                e.printStackTrace();
+                                Log.e(TAG, "Failed to parse date: " + startDateStr, e);
                                 binding.tvDate.setText(startDateStr); // fallback
                             }
                         }
@@ -902,7 +902,7 @@ public class EventDetailFragment extends Fragment {
             return outputFormat.format(date);
 
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to format date: " + dateStr, e);
             return dateStr; // fallback
         }
     }

@@ -69,6 +69,8 @@ import java.util.Locale;
  */
 public class CreateEventFragment extends Fragment {
 
+    private static final String TAG = CreateEventFragment.class.getSimpleName();
+
     /** View binding for accessing UI elements. */
     private FragmentCreateEventBinding binding;
     private FirebaseService eventService = new FirebaseService("Event");
@@ -459,7 +461,7 @@ public class CreateEventFragment extends Fragment {
                     bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
                 }
             } catch (IOException err) {
-                err.printStackTrace();
+                Log.e(TAG, "Failed to load image from URI", err);
             }
             
             if (bitmap != null) {

@@ -74,10 +74,13 @@ public class ChosenListFragment extends Fragment {
     private FirebaseService waitingListService = new FirebaseService("WaitingList");
 
     /** Log tag used for debugging and logging within this fragment. */
-    private String TAG = "RTD8";
+    private static final String TAG = ChosenListFragment.class.getSimpleName();
 
     /** The ID of the current event, passed via fragment arguments. */
     String eventId;
+
+    /** Firebase listener reference for cleanup. */
+    private ValueEventListener valueEventListener;
 
     /**
      * Default constructor required for Fragment instantiation.
@@ -194,29 +197,36 @@ public class ChosenListFragment extends Fragment {
      * @param status the {@link EntrantStatus} to filter entrants by (e.g., INVITED, WAITING)
      */
     public void listEntrants(EntrantStatus status) {
-        Log.i(TAG, "in here " + eventId + " " + status);
+        // Remove existing listener if any
+        if (valueEventListener != null && eventId != null) {
+            waitingListService.getReference().child(eventId).child(status.toString())
+                    .removeEventListener(valueEventListener);
+        }
+
+        Log.i(TAG, "Loading entrants for event=" + eventId + " status=" + status);
+        valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (getContext() == null) return;
+                entrantDataList = new ArrayList<>();
+                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+                    Entrant e = new Entrant(childSnap.getKey(), eventId);
+                    e.setStatus(EntrantStatus.INVITED);
+                    entrantDataList.add(e);
+                }
+
+                waitingListAdapter = new EntrantAdapter(getContext(), entrantDataList);
+                userView.setAdapter(waitingListAdapter);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "Error reading data: " + databaseError.getMessage());
+            }
+        };
+
         waitingListService.getReference().child(eventId).child(status.toString())
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Log.i(TAG, "IN HERE bef " + status);
-                        if (getContext() == null) return;
-                        entrantDataList = new ArrayList<>();
-                        for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-                            Entrant e = new Entrant(childSnap.getKey(), eventId);
-                            e.setStatus(EntrantStatus.INVITED);
-                            entrantDataList.add(e);
-                        }
-
-                        waitingListAdapter = new EntrantAdapter(getContext(), entrantDataList);
-                        userView.setAdapter(waitingListAdapter);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(TAG, "Error reading data: " + databaseError.getMessage());
-                    }
-                });
+                .addValueEventListener(valueEventListener);
     }
 
 
@@ -240,11 +250,17 @@ public class ChosenListFragment extends Fragment {
     }
 
     /**
-     * Cleans up the View Binding reference to prevent memory leaks.
+     * Cleans up the View Binding reference and removes listeners to prevent memory leaks.
      */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // Remove Firebase listener to prevent memory leaks
+        if (valueEventListener != null && eventId != null) {
+            waitingListService.getReference().child(eventId)
+                    .removeEventListener(valueEventListener);
+            valueEventListener = null;
+        }
         binding = null;
     }
 }

@@ -59,6 +59,8 @@ import java.util.Locale;
  */
 public class EventDetailOrgFragment extends Fragment {
 
+    private static final String TAG = EventDetailOrgFragment.class.getSimpleName();
+
     /** View binding for the organizer event detail layout. */
     private FragmentEventDetailOrgBinding binding;
 
@@ -187,7 +189,9 @@ public class EventDetailOrgFragment extends Fragment {
             String currentEventId = (args != null) ? args.getString("eventId") : null;
 
             // 2. Use the simple, testable helper to build the URL
-            String downloadUrl = CsvExportHelper.buildUrl(currentEventId);
+            // Use string resource for base URL if available, otherwise use default
+            String baseUrl = getString(R.string.csv_export_base_url);
+            String downloadUrl = CsvExportHelper.buildUrl(baseUrl, currentEventId);
 
             // 3. Check if the URL is valid before proceeding
             if (downloadUrl == null) {
@@ -336,7 +340,7 @@ public class EventDetailOrgFragment extends Fragment {
                                 // Set TextView
                                 binding.tvDate.setText(display);
                             } catch (ParseException e) {
-                                e.printStackTrace();
+                                Log.e(TAG, "Failed to parse date: " + startDateStr, e);
                                 binding.tvDate.setText(startDateStr); // fallback
                             }
                         }
@@ -388,7 +392,7 @@ public class EventDetailOrgFragment extends Fragment {
             return outputFormat.format(date);
 
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to format date: " + dateStr, e);
             return dateStr;
         }
     }

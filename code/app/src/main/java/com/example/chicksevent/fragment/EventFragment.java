@@ -70,7 +70,7 @@ public class EventFragment extends Fragment {
     private FirebaseService waitingListService;
 
     /** Log tag. */
-    private String TAG = "RTD8";
+    private static final String TAG = EventFragment.class.getSimpleName();
 
     /** The list view displaying events. */
     ListView eventView;

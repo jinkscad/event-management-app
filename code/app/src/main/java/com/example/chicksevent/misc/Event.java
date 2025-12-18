@@ -221,12 +221,12 @@ public class Event {
 
     public String getEventStartTime() { return eventStartTime; }
 
-    /** @param eventDate sets the event description. */
-    public void setEventStartTime(String eventDate) { this.eventStartTime = eventStartTime; }
+    /** @param eventStartTime sets the event start time. */
+    public void setEventStartTime(String eventStartTime) { this.eventStartTime = eventStartTime; }
     public String getEventEndTime() { return eventEndTime; }
 
-    /** @param eventDate sets the event description. */
-    public void setEventEndTime(String eventDate) { this.eventEndTime = eventEndTime; }
+    /** @param eventEndTime sets the event end time. */
+    public void setEventEndTime(String eventEndTime) { this.eventEndTime = eventEndTime; }
 
 
     /** @return the event start date in YYYY-MM-DD or {@code null}. */

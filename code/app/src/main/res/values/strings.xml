@@ -63,4 +63,7 @@
         <item>Next Month</item>
     </string-array>
 
+    <!-- Cloud Functions URLs -->
+    <string name="csv_export_base_url">https://us-central1-listycity-friedchicken.cloudfunctions.net/exportFinalEntrants</string>
+
 </resources>

@@ -92,7 +92,7 @@ public class User {
 
 
 
-    String TAG = "RTD8";
+    private static final String TAG = User.class.getSimpleName();
 
 
     /**

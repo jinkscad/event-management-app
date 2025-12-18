@@ -66,13 +66,15 @@ public class PoolingFragment extends Fragment {
     private FirebaseService waitingListService;
 
     /** Log tag. */
-    private static final String TAG = "RTD8";
+    private static final String TAG = PoolingFragment.class.getSimpleName();
 
     public int targetEntrants;
 
-
     /** The event id whose waiting list is being managed. */
     String eventId;
+
+    /** Firebase listener reference for cleanup. */
+    private ValueEventListener valueEventListener;
 
     public PoolingFragment() {}
 
@@ -226,48 +228,61 @@ public class PoolingFragment extends Fragment {
      * @param status the {@link EntrantStatus} bucket to display
      */
     public void listEntrants(EntrantStatus status) {
+        // Remove existing listener if any
+        if (valueEventListener != null && eventId != null) {
+            waitingListService.getReference().child(eventId).child(status.toString())
+                    .removeEventListener(valueEventListener);
+        }
+
         Log.i(TAG, "Loading entrants for event=" + eventId + " status=" + status);
+
+        valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (getContext() == null) return;
+
+                entrantDataList = new ArrayList<>();
+
+                if (dataSnapshot != null && dataSnapshot.exists()) {
+                    for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+                        Entrant e = new Entrant(childSnap.getKey(), eventId);
+                        e.setStatus(EntrantStatus.INVITED);
+                        entrantDataList.add(e);
+                    }
+                }
+
+                // Update adapter
+                waitingListAdapter = new EntrantAdapter(getContext(), entrantDataList);
+                userView.setAdapter(waitingListAdapter);
+
+                // Update the counter TextView
+                updateCounters();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "Error reading data: " + databaseError.getMessage());
+            }
+        };
 
         waitingListService.getReference()
                 .child(eventId)
                 .child(status.toString())
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (getContext() == null) return;
-
-                        entrantDataList = new ArrayList<>();
-
-                        if (dataSnapshot != null && dataSnapshot.exists()) {
-                            for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-                                Entrant e = new Entrant(childSnap.getKey(), eventId);
-                                e.setStatus(EntrantStatus.INVITED);
-                                entrantDataList.add(e);
-//                                entrantDataList.add(new Entrant(childSnap.getKey(), eventId));
-                            }
-                        }
-
-                        // Update adapter
-                        waitingListAdapter = new EntrantAdapter(getContext(), entrantDataList);
-                        userView.setAdapter(waitingListAdapter);
-
-                        // Update the counter TextView
-                        updateCounters();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(TAG, "Error reading data: " + databaseError.getMessage());
-                    }
-                });
+                .addValueEventListener(valueEventListener);
     }
 
 
 
-    /** Clears binding references when the view is destroyed. */
+    /** Clears binding references and removes listeners when the view is destroyed. */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // Remove Firebase listener to prevent memory leaks
+        if (valueEventListener != null && eventId != null) {
+            waitingListService.getReference().child(eventId)
+                    .removeEventListener(valueEventListener);
+            valueEventListener = null;
+        }
         binding = null;
     }
 }

@@ -52,6 +52,7 @@ import java.util.Locale;
  * @author Jordan Kwan
  */
 public class HostedEventAdapter extends ArrayAdapter<Event> {
+    private static final String TAG = HostedEventAdapter.class.getSimpleName();
     /** Listener interface for responding to per-item button clicks. */
     OnItemButtonClickListener listener;
     private final HashMap<String, Bitmap> imageCache = new HashMap<>();
@@ -164,7 +165,7 @@ public class HostedEventAdapter extends ArrayAdapter<Event> {
                 tv_date.setText(display);
 
             } catch (ParseException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Failed to parse date: " + startDateStr, e);
                 tv_date.setText(startDateStr); // fallback
             }
         } else {

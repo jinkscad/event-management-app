@@ -1,6 +1,7 @@
 package com.example.chicksevent.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import java.util.Locale;
  * @author Jordan Kwan
  */
 public class NotificationAdapter extends ArrayAdapter<Notification> {
+    private static final String TAG = NotificationAdapter.class.getSimpleName();
     OnItemButtonClickListener listener;
     OnItemButtonClickListener listener2;
 
@@ -129,7 +131,7 @@ public class NotificationAdapter extends ArrayAdapter<Notification> {
                 tv_date.setText(display);
 
             } catch (ParseException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Failed to parse date: " + startDateStr, e);
                 tv_date.setText(startDateStr);
             }
         } else {

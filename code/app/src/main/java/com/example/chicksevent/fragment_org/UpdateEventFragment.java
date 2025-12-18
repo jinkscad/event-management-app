@@ -63,6 +63,8 @@ import java.util.Locale;
 
 public class UpdateEventFragment extends Fragment {
 
+    private static final String TAG = UpdateEventFragment.class.getSimpleName();
+
     /** View binding for accessing UI elements. */
     private FragmentUpdateEventDetailBinding  binding;
     private FirebaseService imageService = new FirebaseService("Image");
@@ -305,7 +307,7 @@ public class UpdateEventFragment extends Fragment {
             return outputFormat.format(date);
 
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to format date: " + dateStr, e);
             return dateStr; // fallback
         }
     }
@@ -522,7 +524,7 @@ public class UpdateEventFragment extends Fragment {
                     bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
                 }
             } catch (IOException err) {
-                err.printStackTrace();
+                Log.e(TAG, "Failed to load image from URI", err);
             }
 
             if (bitmap != null) {

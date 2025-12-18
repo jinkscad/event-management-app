@@ -60,7 +60,7 @@ public class HostedEventFragment extends Fragment {
     private FirebaseService waitingListService;
 
     /** Log tag. */
-    private String TAG = "RTD8";
+    private static final String TAG = HostedEventFragment.class.getSimpleName();
 
     /** ListView that renders hosted events. */
     ListView eventView;

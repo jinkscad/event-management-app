@@ -58,7 +58,7 @@ public class NotificationFragment extends Fragment {
     private String androidId;
 
     /** Log tag. */
-    private static final String TAG = "RTD8";
+    private static final String TAG = NotificationFragment.class.getSimpleName();
 
     private FirebaseService notificationService;
 

@@ -43,7 +43,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseService userService = new FirebaseService("User");
 
     /** Log tag used for debugging and logging within this fragment. */
-    private String TAG = "RTD8";
+    private static final String TAG = ProfileFragment.class.getSimpleName();
 
     /** EditText field for entering or displaying the user's name. */
     EditText editName;

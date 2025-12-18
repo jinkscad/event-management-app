@@ -25,6 +25,7 @@ import java.util.Locale;
  * Custom {@link EventAdapter} subclass for displaying events
  */
 public class EventAdapter extends ArrayAdapter<Event> {
+    private static final String TAG = EventAdapter.class.getSimpleName();
     /** Listener interface for responding to item button clicks. */
     OnItemButtonClickListener listener;
     FirebaseService imageService = new FirebaseService("Image");
@@ -161,7 +162,7 @@ public class EventAdapter extends ArrayAdapter<Event> {
                 tv_date.setText(display);
 
             } catch (ParseException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Failed to parse date: " + startDateStr, e);
                 tv_date.setText(startDateStr); // fallback
             }
         } else {

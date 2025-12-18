@@ -32,6 +32,8 @@ import java.util.HashMap;
  */
 public class FirebaseService {
 
+    private static final String TAG = FirebaseService.class.getSimpleName();
+
     /** Firebase Realtime Database instance bound to the project URL. */
     private FirebaseDatabase database;
 
@@ -44,7 +46,8 @@ public class FirebaseService {
      * @param refString the root path within Firebase Realtime Database (e.g., "Event").
      */
     public FirebaseService(String refString) {
-        database = FirebaseDatabase.getInstance("https://listycity-friedchicken-default-rtdb.firebaseio.com/");
+        // Use default Firebase instance from google-services.json
+        database = FirebaseDatabase.getInstance();
         reference = database.getReference(refString);
     }
 
@@ -57,8 +60,8 @@ public class FirebaseService {
     public String addEntry(HashMap<String, Object> data) {
         String id = reference.push().getKey();
         reference.child(id).setValue(data)
-                .addOnSuccessListener(a -> Log.d("FirestoreTest", "Success"))
-                .addOnFailureListener(e -> Log.e("FirestoreTest", "Failed", e));
+                .addOnSuccessListener(a -> Log.d(TAG, "Entry added successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to add entry", e));
         return id;
     }
 
@@ -71,8 +74,8 @@ public class FirebaseService {
      */
     public String addEntry(HashMap<String, Object> data, String id) {
         reference.child(id).setValue(data)
-                .addOnSuccessListener(a -> Log.d("FirestoreTest", "Success"))
-                .addOnFailureListener(e -> Log.e("FirestoreTest", "Failed", e));
+                .addOnSuccessListener(a -> Log.d(TAG, "Entry added successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to add entry", e));
         return id;
     }
 
@@ -83,8 +86,8 @@ public class FirebaseService {
      */
     public void deleteEntry(String id) {
         reference.child(id).removeValue()
-                .addOnSuccessListener(a -> Log.d("FirestoreTest", "Success"))
-                .addOnFailureListener(e -> Log.e("FirestoreTest", "Failed", e));
+                .addOnSuccessListener(a -> Log.d(TAG, "Entry added successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to add entry", e));
     }
 
     /**
@@ -96,8 +99,8 @@ public class FirebaseService {
      */
     public String editEntry(String id, HashMap<String, Object> data) {
         reference.child(id).updateChildren(data)
-                .addOnSuccessListener(a -> Log.d("FirestoreTest", "Success"))
-                .addOnFailureListener(e -> Log.e("FirestoreTest", "Failed", e));
+                .addOnSuccessListener(a -> Log.d(TAG, "Entry added successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to add entry", e));
         return id;
     }
 
@@ -112,8 +115,8 @@ public class FirebaseService {
     public void updateSubCollectionEntry(String parentId, String subCollectionName, String subId, HashMap<String, Object> updates) {
         reference.child(parentId).child(subCollectionName).child(subId)
                 .updateChildren(updates)
-                .addOnSuccessListener(a -> Log.d("FirestoreTest", "SubCollection Update Success"))
-                .addOnFailureListener(e -> Log.e("FirestoreTest", "SubCollection Update Failed", e));
+                .addOnSuccessListener(a -> Log.d(TAG, "SubCollection entry updated successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to update subcollection entry", e));
     }
 
     /**
@@ -125,8 +128,8 @@ public class FirebaseService {
      */
     public void deleteSubCollectionEntry(String parentId, String subCollectionName, String subId) {
         reference.child(parentId).child(subCollectionName).child(subId).removeValue()
-                .addOnSuccessListener(a -> Log.d("FirestoreTest", "SubCollection Delete Success"))
-                .addOnFailureListener(e -> Log.e("FirestoreTest", "SubCollection Delete Failed", e));
+                .addOnSuccessListener(a -> Log.d(TAG, "SubCollection entry deleted successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to delete subcollection entry", e));
     }
 
     /**

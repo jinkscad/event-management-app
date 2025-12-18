@@ -2,6 +2,7 @@ package com.example.chicksevent.util;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.google.zxing.BarcodeFormat;
@@ -27,6 +28,7 @@ import java.util.Map;
  */
 public class QRCodeGenerator {
 
+    private static final String TAG = QRCodeGenerator.class.getSimpleName();
     private static final int QR_CODE_SIZE = 512; // Size in pixels
     private static final int QR_CODE_MARGIN = 4;
 
@@ -58,7 +60,7 @@ public class QRCodeGenerator {
 
             return bitmap;
         } catch (WriterException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to generate QR code", e);
             return null;
         }
     }
@@ -88,7 +90,7 @@ public class QRCodeGenerator {
             fos.close();
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to save QR code to file: " + file.getPath(), e);
             return false;
         }
     }
