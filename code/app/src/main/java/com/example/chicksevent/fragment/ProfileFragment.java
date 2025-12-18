@@ -113,7 +113,7 @@ public class ProfileFragment extends Fragment {
         }
 
         userId = Settings.Secure.getString(
-                getContext().getContentResolver(),
+                requireContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID
         );
 

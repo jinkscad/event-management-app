@@ -475,10 +475,8 @@ public class UpdateEventFragment extends Fragment {
 
         boolean geolocationRequired = binding.switchGeo.isChecked();
 
-        // Your Event model also has eventStartDate / eventEndDate.
-        // If you don’t have those fields on this screen yet, pass nulls (Firebase will omit).
-        String eventStartDate = null; // TODO: add UI if needed
-        String eventEndDate   = null; // TODO: add UI if needed
+        // Note: eventStartDate and eventEndDate are already captured as startDateInput and endDateInput
+        // and passed to the Event constructor below. These variables are not needed.
 
         // Poster/tag are optional for now
         String poster = null;

@@ -151,7 +151,7 @@ public class EventDetailFragment extends Fragment {
         }
 
         userId = Settings.Secure.getString(
-                getContext().getContentResolver(),
+                requireContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID
         );
 
@@ -699,7 +699,7 @@ public class EventDetailFragment extends Fragment {
         // Check if location services are enabled
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) &&
                 !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            Toast.makeText(getContext(),
+            Toast.makeText(requireContext(),
                     "Location services are disabled. Please enable location services to join this event",
                     Toast.LENGTH_LONG).show();
             return;
@@ -714,7 +714,7 @@ public class EventDetailFragment extends Fragment {
         if (locationProgressBar != null) {
             locationProgressBar.setVisibility(View.VISIBLE);
         }
-        Toast.makeText(getContext(), "Getting your location...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "Getting your location...", Toast.LENGTH_SHORT).show();
 
         // Initialize timeout handler
         locationTimeoutHandler = new Handler(Looper.getMainLooper());

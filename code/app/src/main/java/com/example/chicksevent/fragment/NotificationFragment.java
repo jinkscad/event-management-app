@@ -93,7 +93,7 @@ public class NotificationFragment extends Fragment {
         HashMap<String, Object> data = new HashMap<>();
 
         androidId = Settings.Secure.getString(
-                getContext().getContentResolver(),
+                requireContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID
         );
         Log.i("ANDROID-ID", "Android ID used for test: " + androidId);
@@ -121,7 +121,7 @@ public class NotificationFragment extends Fragment {
 
 
 
-                    notificationAdapter = new NotificationAdapter(getContext(), notificationDataList, item -> {
+                    notificationAdapter = new NotificationAdapter(requireContext(), notificationDataList, item -> {
                         notificationDeleteListener(item);
                     }, item -> notificationEventListener(item));
 

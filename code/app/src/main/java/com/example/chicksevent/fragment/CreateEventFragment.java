@@ -412,10 +412,8 @@ public class CreateEventFragment extends Fragment {
 
         boolean geolocationRequired = binding.switchGeo.isChecked();
 
-        // Your Event model also has eventStartDate / eventEndDate.
-        // If you don’t have those fields on this screen yet, pass nulls (Firebase will omit).
-        String eventStartDate = null; // TODO: add UI if needed
-        String eventEndDate   = null; // TODO: add UI if needed
+        // Note: eventStartDate and eventEndDate are already captured as startDateInput and endDateInput
+        // and passed to the Event constructor below. These variables are not needed.
 
         // Poster/tag are optional for now
         String poster = null;
@@ -454,11 +452,11 @@ public class CreateEventFragment extends Fragment {
             Bitmap bitmap = null;
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    ImageDecoder.Source source = ImageDecoder.createSource(getContext().getContentResolver(), imageUri);
+                    ImageDecoder.Source source = ImageDecoder.createSource(requireContext().getContentResolver(), imageUri);
                     bitmap = ImageDecoder.decodeBitmap(source);
                 } else {
                     // fallback for older versions
-                    bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
+                    bitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), imageUri);
                 }
             } catch (IOException err) {
                 Log.e(TAG, "Failed to load image from URI", err);

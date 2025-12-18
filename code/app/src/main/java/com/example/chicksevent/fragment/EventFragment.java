@@ -121,7 +121,7 @@ public class EventFragment extends Fragment {
 
 
         androidId = Settings.Secure.getString(
-                getContext().getContentResolver(),
+                requireContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID
         );
 

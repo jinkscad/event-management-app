@@ -128,7 +128,7 @@ public class WaitingListFragment extends Fragment {
 
         sendNotificationButton.setOnClickListener(v -> {
             Organizer organizer = new Organizer(Settings.Secure.getString(
-                    getContext().getContentResolver(),
+                    requireContext().getContentResolver(),
                     Settings.Secure.ANDROID_ID
             ), eventId);
 

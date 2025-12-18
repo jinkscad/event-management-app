@@ -127,7 +127,7 @@ public class CancelledListFragment extends Fragment {
         sendNotificationButton.setOnClickListener(v -> {
             Log.i("notification", "sending notif");
             Organizer organizer = new Organizer(Settings.Secure.getString(
-                    getContext().getContentResolver(),
+                    requireContext().getContentResolver(),
                     Settings.Secure.ANDROID_ID
             ), eventId);
 

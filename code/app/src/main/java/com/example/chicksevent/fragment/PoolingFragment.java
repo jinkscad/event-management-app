@@ -156,7 +156,7 @@ public class PoolingFragment extends Fragment {
             listEntrants(EntrantStatus.INVITED);
             updateCounters();
             Organizer organizer = new Organizer(Settings.Secure.getString(
-                    getContext().getContentResolver(),
+                    requireContext().getContentResolver(),
                     Settings.Secure.ANDROID_ID
             ), eventId);
             organizer.sendWaitingListNotification(EntrantStatus.INVITED, "YOU are the CHOSEN one");
