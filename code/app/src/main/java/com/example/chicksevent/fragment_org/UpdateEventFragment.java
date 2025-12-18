@@ -270,23 +270,44 @@ public class UpdateEventFragment extends Fragment {
                             binding.etMaxEntrants.setText(limit);
 
                         }
-                        try {
-                            imageService.getReference().child(eventId).get().addOnSuccessListener(task -> {
-//            if (task.getResult().getValue() == null || !event.getId().equals(task.getResult().getKey())) return;
-//                            if (!event.getId().equals(holder.eventId) || task.getValue() == null) return;
-
-                                HashMap<String, String> hash = ((HashMap<String, String>) task.getValue());
-                                if (hash != null) {
-                                    String base64Image = hash.get("url");
-                                    byte[] bytes = Base64.decode(base64Image, Base64.DEFAULT);
-                                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                    binding.imgEventPoster.setImageBitmap(bitmap);
-                                }
-
-                            });
-                        } catch (Exception e) {
-                            Log.i("image", "no image");
-                        }
+                        imageService.getReference().child(eventId).get()
+                                .addOnSuccessListener(task -> {
+                                    Object valueObj = task.getValue();
+                                    if (valueObj == null) {
+                                        Log.w(TAG, "Image data is null for event: " + eventId);
+                                        return;
+                                    }
+                                    
+                                    try {
+                                        String base64Image = null;
+                                        if (valueObj instanceof HashMap) {
+                                            @SuppressWarnings("unchecked")
+                                            HashMap<String, Object> hash = (HashMap<String, Object>) valueObj;
+                                            Object urlObj = hash.get("url");
+                                            if (urlObj != null) {
+                                                base64Image = urlObj.toString();
+                                            }
+                                        }
+                                        
+                                        if (base64Image != null && !base64Image.isEmpty()) {
+                                            Bitmap bitmap = com.example.chicksevent.util.ImageUtils.decodeBase64Image(
+                                                    base64Image,
+                                                    com.example.chicksevent.util.AppConstants.MAX_IMAGE_DIMENSION,
+                                                    com.example.chicksevent.util.AppConstants.MAX_IMAGE_DIMENSION
+                                            );
+                                            if (bitmap != null) {
+                                                binding.imgEventPoster.setImageBitmap(bitmap);
+                                            } else {
+                                                Log.w(TAG, "Failed to decode image for event: " + eventId);
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "Error processing image", e);
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Failed to load image for event: " + eventId, e);
+                                });
 
 
                     } else {

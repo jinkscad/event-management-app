@@ -119,6 +119,15 @@ public class Event {
      * @param tag optional space-separated tags; may be {@code null}.
      * @param geolocationRequired whether geolocation is required for entrants to join.
      */
+    /**
+     * No-argument constructor required by Firebase for automatic deserialization.
+     */
+    public Event() {
+        // Initialize with default values
+        this.onHold = false;
+        this.geolocationRequired = false;
+    }
+
     public Event(String entrantId, String id, String name, String eventDetails, String eventStartTime, String eventEndTime,
                  String eventStartDate, String eventEndDate,
                  String registrationStartDate, String registrationEndDate,
@@ -142,7 +151,7 @@ public class Event {
 
         this.organizer = new Organizer(entrantId, id);
 
-    } // Required by Firebase
+    }
     public String createEvent(){
         Log.i("filtering", "creating event");
         HashMap<String, Object> map = new HashMap<>();

@@ -122,20 +122,44 @@ public class EventDetailOrgFragment extends Fragment {
 
         ImageView posterImageView = view.findViewById(R.id.img_event);
 
-        imageService.getReference().child(args.getString("eventId")).get().addOnSuccessListener(task -> {
-//            if (task.getResult().getValue() == null || !event.getId().equals(task.getResult().getKey())) return;
-//            if (!eventIdString.equals(holder.eventId) || task.getValue() == null) return;
-
-            try {
-                String base64Image = ((HashMap<String, String>) task.getValue()).get("url");
-                byte[] bytes = Base64.decode(base64Image, Base64.DEFAULT);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                posterImageView.setImageBitmap(bitmap);
-            } catch (Exception e) {
-                Log.i("image error", ":(");
-            }
-//            imageCache.put(event.getId(), bitmap);
-        });
+        imageService.getReference().child(args.getString("eventId")).get()
+                .addOnSuccessListener(task -> {
+                    Object valueObj = task.getValue();
+                    if (valueObj == null) {
+                        Log.w(TAG, "Image data is null for event: " + args.getString("eventId"));
+                        return;
+                    }
+                    
+                    try {
+                        String base64Image = null;
+                        if (valueObj instanceof HashMap) {
+                            @SuppressWarnings("unchecked")
+                            HashMap<String, Object> hash = (HashMap<String, Object>) valueObj;
+                            Object urlObj = hash.get("url");
+                            if (urlObj != null) {
+                                base64Image = urlObj.toString();
+                            }
+                        }
+                        
+                        if (base64Image != null && !base64Image.isEmpty()) {
+                            Bitmap bitmap = com.example.chicksevent.util.ImageUtils.decodeBase64Image(
+                                    base64Image, 
+                                    com.example.chicksevent.util.AppConstants.MAX_IMAGE_DIMENSION,
+                                    com.example.chicksevent.util.AppConstants.MAX_IMAGE_DIMENSION
+                            );
+                            if (bitmap != null) {
+                                posterImageView.setImageBitmap(bitmap);
+                            } else {
+                                Log.w(TAG, "Failed to decode image for event: " + args.getString("eventId"));
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error processing image", e);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to load image for event: " + args.getString("eventId"), e);
+                });
 
         viewWaitingListButton.setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(EventDetailOrgFragment.this);

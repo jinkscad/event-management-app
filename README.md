@@ -91,23 +91,6 @@ The release build includes:
 - Optimized APK size
 - Minified resources
 
-## Architecture
-
-### Data Models
-- **Event**: Represents an event with dates, limits, and metadata
-- **User**: User profile and preferences
-- **Entrant**: Participant in an event's waiting list
-- **Organizer**: Event creator/manager
-- **Notification**: User notifications
-- **Admin**: Administrative user with elevated permissions
-
-### Key Components
-- **FirebaseService**: Wrapper for Firebase Realtime Database operations
-- **DateFormatter**: Thread-safe date formatting utilities
-- **StringUtils**: String manipulation helpers
-- **QRCodeGenerator**: QR code generation and deep linking
-- **AppConstants**: Application-wide constants
-
 ## Testing
 
 The project includes comprehensive unit tests:
@@ -140,20 +123,6 @@ The app requires the following permissions:
 - `ACCESS_COARSE_LOCATION`: For approximate location
 - `CAMERA`: For QR code scanning
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Code Style
-- Follow Android Kotlin/Java style guide
-- Use meaningful variable and method names
-- Add JavaDoc comments for public methods
-- Keep methods focused and single-purpose
-
 ## Known Issues
 
 See [IMPROVEMENTS.md](IMPROVEMENTS.md) for a comprehensive list of known issues and improvement suggestions.
@@ -164,10 +133,12 @@ See [LICENSE](LICENSE) file for details.
 
 ## Authors
 
-- Jordan Kwan
-- Jinn Kasai
-- Juan Rea
-- ChicksEvent Team
+- friedchickenblob
+- jinkscad
+- DamHanhNguyenMong
+- 9juanjuan7
+- damdungn
+- ekane3901
 
 ## Acknowledgments
 

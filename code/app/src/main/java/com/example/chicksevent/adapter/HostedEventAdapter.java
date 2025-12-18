@@ -192,29 +192,32 @@ public class HostedEventAdapter extends ArrayAdapter<Event> {
         } else {
 
 
-            try {
-                imageService.getReference()
-                        .child(event.getId())
-                        .child("poster")
-                        .get()
-                        .addOnSuccessListener(snapshot -> {
+            imageService.getReference()
+                    .child(event.getId())
+                    .child("poster")
+                    .get()
+                    .addOnSuccessListener(snapshot -> {
+                        if (!event.getId().equals(holder.eventId)) return;
 
-                            if (!event.getId().equals(holder.eventId)) return;
+                        String imageUrl = snapshot.getValue(String.class);
+                        if (imageUrl == null || imageUrl.isEmpty()) {
+                            return;
+                        }
 
-                            String imageUrl = snapshot.getValue(String.class);
-                            if (imageUrl == null) return;
+                        // Cache the URL for future use
+                        // Note: HostedEventAdapter uses Bitmap cache, but we'll cache URL for consistency
+                        // The Bitmap cache can be populated separately if needed
 
-                            Glide.with(holder.posterImageView.getContext())
-                                    .load(imageUrl)
-                                    .into(holder.posterImageView);
-
-//                    imageCache.put(event.getId(), imageUrl); // optional
-                        });
-            } catch (Exception e) {
-                Log.i("errorthingprintthis", ""+e);
-                holder.posterImageView.setImageResource(R.drawable.sample_image);
-
-            }
+                        Glide.with(holder.posterImageView.getContext())
+                                .load(imageUrl)
+                                .placeholder(R.drawable.sample_image)
+                                .error(R.drawable.sample_image)
+                                .into(holder.posterImageView);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Failed to load image for event: " + event.getId(), e);
+                        // Keep the placeholder image that was already set
+                    });
         }
 
 

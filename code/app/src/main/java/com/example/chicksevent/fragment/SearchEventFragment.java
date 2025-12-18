@@ -146,33 +146,60 @@ public class SearchEventFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull com.google.firebase.database.DataSnapshot dataSnapshot) {
                 for (com.google.firebase.database.DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                    HashMap<String, String> value = (HashMap<String, String>) childSnapshot.getValue();
-                    String eventId = value.get("id");
-
-                    Boolean onHold = (Boolean) ((HashMap<String, Object>) childSnapshot.getValue()).get("onHold");
-
-                    if (onHold) continue;
-
-                    if (filterIds != null && !filterIds.contains(eventId)) continue;
-
-                    Event e = new Event(
-                            "e",
-                            eventId,
-                            value.get("name"),
-                            value.get("eventDetails"),
-                            value.get("eventStartTime"),
-                            value.get("eventEndTime"),
-                            value.get("eventStartDate"),
-                            "N/A",
-                            value.get("registrationEndDate"),
-                            value.get("registrationStartDate"),
-                            32,
-                            "N/A",
-                            value.get("tag"),
-                            false
-                    );
-
-                    eventDataList.add(e);
+                    String key = childSnapshot.getKey();
+                    
+                    // Try Firebase deserialization first
+                    Event event = childSnapshot.getValue(Event.class);
+                    if (event != null) {
+                        // Check onHold
+                        if (event.isOnHold()) {
+                            continue;
+                        }
+                        
+                        // Ensure the ID is set from the snapshot key
+                        if (event.getId() == null || event.getId().isEmpty()) {
+                            event.setId(key);
+                        }
+                        
+                        // Apply filter if provided
+                        if (filterIds != null && !filterIds.contains(event.getId())) {
+                            continue;
+                        }
+                        
+                        eventDataList.add(event);
+                    } else {
+                        // Fallback: manual construction if deserialization fails
+                        Object valueObj = childSnapshot.getValue();
+                        if (valueObj instanceof HashMap) {
+                            @SuppressWarnings("unchecked")
+                            HashMap<String, Object> value = (HashMap<String, Object>) valueObj;
+                            
+                            Boolean onHold = value.get("onHold") instanceof Boolean ? (Boolean) value.get("onHold") : false;
+                            if (onHold) continue;
+                            
+                            String eventId = value.get("id") != null ? value.get("id").toString() : key;
+                            if (filterIds != null && !filterIds.contains(eventId)) continue;
+                            
+                            String name = value.get("name") != null ? value.get("name").toString() : "";
+                            String eventDetails = value.get("eventDetails") != null ? value.get("eventDetails").toString() : "";
+                            String eventStartTime = value.get("eventStartTime") != null ? value.get("eventStartTime").toString() : "";
+                            String eventEndTime = value.get("eventEndTime") != null ? value.get("eventEndTime").toString() : "";
+                            String eventStartDate = value.get("eventStartDate") != null ? value.get("eventStartDate").toString() : null;
+                            String eventEndDate = value.get("eventEndDate") != null ? value.get("eventEndDate").toString() : null;
+                            String registrationStartDate = value.get("registrationStartDate") != null ? value.get("registrationStartDate").toString() : null;
+                            String registrationEndDate = value.get("registrationEndDate") != null ? value.get("registrationEndDate").toString() : null;
+                            int entrantLimit = value.get("entrantLimit") instanceof Number ? ((Number) value.get("entrantLimit")).intValue() : com.example.chicksevent.util.AppConstants.UNLIMITED_ENTRANTS;
+                            String poster = value.get("poster") != null ? value.get("poster").toString() : null;
+                            String tag = value.get("tag") != null ? value.get("tag").toString() : null;
+                            Boolean geoRequired = value.get("geolocationRequired") instanceof Boolean ? (Boolean) value.get("geolocationRequired") : false;
+                            String entrantId = value.get("entrantId") != null ? value.get("entrantId").toString() : "";
+                            
+                            Event e = new Event(entrantId, eventId, name, eventDetails, eventStartTime, eventEndTime,
+                                    eventStartDate, eventEndDate, registrationStartDate, registrationEndDate,
+                                    entrantLimit, poster, tag, geoRequired);
+                            eventDataList.add(e);
+                        }
+                    }
                 }
 
                 updateEventList(eventDataList);

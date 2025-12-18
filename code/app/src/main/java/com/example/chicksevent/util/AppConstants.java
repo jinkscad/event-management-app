@@ -82,5 +82,16 @@ public class AppConstants {
      * Location permission request code.
      */
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    
+    // Image size limits
+    /**
+     * Maximum size for Base64-encoded images (10MB).
+     */
+    public static final int MAX_BASE64_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+    
+    /**
+     * Maximum image dimension in pixels for downscaling.
+     */
+    public static final int MAX_IMAGE_DIMENSION = 2048;
 }
 

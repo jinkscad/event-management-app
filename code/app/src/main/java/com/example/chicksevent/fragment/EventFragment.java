@@ -20,6 +20,7 @@ import com.example.chicksevent.adapter.EventAdapter;
 import com.example.chicksevent.databinding.FragmentEventBinding;
 import com.example.chicksevent.misc.Event;
 import com.example.chicksevent.misc.FirebaseService;
+import com.example.chicksevent.util.AppConstants;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -249,21 +250,47 @@ public class EventFragment extends Fragment {
                 // Iterate through all children
                 for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                     String key = childSnapshot.getKey();
-                    HashMap<String, String> value = (HashMap<String, String>) childSnapshot.getValue();
-//                    new Event();
-
-                    Log.d(TAG, "Key: " + key);
-                    Log.d(TAG, "Value: " + value);
-
-
-                    if (eventFilterList.contains(key)) {
-                        Event e = new Event("e", value.get("id"), value.get("name"),  value.get("eventDetails"), value.get("eventStartTime"), value.get("eventEndTime"), value.get("eventStartDate"), "N/A", value.get("registrationEndDate"), value.get("registrationStartDate"), 32, "N/A", value.get("tag"), false);
-                        eventDataList.add(e);
-
+                    
+                    if (!eventFilterList.contains(key)) {
+                        continue;
                     }
 
-
-                    Log.d(TAG, "---");
+                    // Try Firebase deserialization first
+                    Event event = childSnapshot.getValue(Event.class);
+                    if (event != null) {
+                        // Ensure the ID is set from the snapshot key
+                        if (event.getId() == null || event.getId().isEmpty()) {
+                            event.setId(key);
+                        }
+                        eventDataList.add(event);
+                    } else {
+                        // Fallback: manual construction if deserialization fails
+                        Log.w(TAG, "Failed to deserialize event: " + key + ", using fallback");
+                        Object valueObj = childSnapshot.getValue();
+                        if (valueObj instanceof HashMap) {
+                            @SuppressWarnings("unchecked")
+                            HashMap<String, Object> value = (HashMap<String, Object>) valueObj;
+                            String id = value.get("id") != null ? value.get("id").toString() : key;
+                            String name = value.get("name") != null ? value.get("name").toString() : "";
+                            String eventDetails = value.get("eventDetails") != null ? value.get("eventDetails").toString() : "";
+                            String eventStartTime = value.get("eventStartTime") != null ? value.get("eventStartTime").toString() : "";
+                            String eventEndTime = value.get("eventEndTime") != null ? value.get("eventEndTime").toString() : "";
+                            String eventStartDate = value.get("eventStartDate") != null ? value.get("eventStartDate").toString() : null;
+                            String eventEndDate = value.get("eventEndDate") != null ? value.get("eventEndDate").toString() : null;
+                            String registrationStartDate = value.get("registrationStartDate") != null ? value.get("registrationStartDate").toString() : null;
+                            String registrationEndDate = value.get("registrationEndDate") != null ? value.get("registrationEndDate").toString() : null;
+                            int entrantLimit = value.get("entrantLimit") instanceof Number ? ((Number) value.get("entrantLimit")).intValue() : AppConstants.UNLIMITED_ENTRANTS;
+                            String poster = value.get("poster") != null ? value.get("poster").toString() : null;
+                            String tag = value.get("tag") != null ? value.get("tag").toString() : null;
+                            Boolean geoRequired = value.get("geolocationRequired") instanceof Boolean ? (Boolean) value.get("geolocationRequired") : false;
+                            String entrantId = value.get("entrantId") != null ? value.get("entrantId").toString() : "";
+                            
+                            Event e = new Event(entrantId, id, name, eventDetails, eventStartTime, eventEndTime,
+                                    eventStartDate, eventEndDate, registrationStartDate, registrationEndDate,
+                                    entrantLimit, poster, tag, geoRequired);
+                            eventDataList.add(e);
+                        }
+                    }
                 }
                 EventAdapter eventAdapter = new EventAdapter(getContext(), eventDataList, item -> {
                     NavController navController = NavHostFragment.findNavController(EventFragment.this);
@@ -304,19 +331,59 @@ public class EventFragment extends Fragment {
                 // Iterate through all children
                 for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                     String key = childSnapshot.getKey();
-                    HashMap<String, String> value = (HashMap<String, String>) childSnapshot.getValue();
-//                    new Event();
+                    
+                    // Check onHold status first
+                    Event event = childSnapshot.getValue(Event.class);
+                    if (event != null && event.isOnHold()) {
+                        continue;
+                    }
+                    
+                    // If deserialization failed, check onHold manually
+                    if (event == null) {
+                        Object valueObj = childSnapshot.getValue();
+                        if (valueObj instanceof HashMap) {
+                            @SuppressWarnings("unchecked")
+                            HashMap<String, Object> value = (HashMap<String, Object>) valueObj;
+                            Boolean onHold = value.get("onHold") instanceof Boolean ? (Boolean) value.get("onHold") : false;
+                            if (onHold) continue;
+                        }
+                    }
 
-                    Boolean onHold = (Boolean) ((HashMap<String, Object>) childSnapshot.getValue()).get("onHold");
-
-                    if (onHold) continue;
-
-                    Log.d(TAG, "Key: " + key);
-                    Log.d(TAG, "Value: " + value);
-                    Event e = new Event("e", value.get("id"), value.get("name"), value.get("eventDetails"), value.get("eventStartTime"), value.get("eventEndTime"), value.get("eventStartDate"), "N/A", value.get("registrationEndDate"), value.get("registrationStartDate"), 32, "N/A", value.get("tag"), false);
-                    eventDataList.add(e);
-
-                    Log.d(TAG, "---");
+                    // Try Firebase deserialization first
+                    if (event != null) {
+                        // Ensure the ID is set from the snapshot key
+                        if (event.getId() == null || event.getId().isEmpty()) {
+                            event.setId(key);
+                        }
+                        eventDataList.add(event);
+                    } else {
+                        // Fallback: manual construction if deserialization fails
+                        Log.w(TAG, "Failed to deserialize event: " + key + ", using fallback");
+                        Object valueObj = childSnapshot.getValue();
+                        if (valueObj instanceof HashMap) {
+                            @SuppressWarnings("unchecked")
+                            HashMap<String, Object> value = (HashMap<String, Object>) valueObj;
+                            String id = value.get("id") != null ? value.get("id").toString() : key;
+                            String name = value.get("name") != null ? value.get("name").toString() : "";
+                            String eventDetails = value.get("eventDetails") != null ? value.get("eventDetails").toString() : "";
+                            String eventStartTime = value.get("eventStartTime") != null ? value.get("eventStartTime").toString() : "";
+                            String eventEndTime = value.get("eventEndTime") != null ? value.get("eventEndTime").toString() : "";
+                            String eventStartDate = value.get("eventStartDate") != null ? value.get("eventStartDate").toString() : null;
+                            String eventEndDate = value.get("eventEndDate") != null ? value.get("eventEndDate").toString() : null;
+                            String registrationStartDate = value.get("registrationStartDate") != null ? value.get("registrationStartDate").toString() : null;
+                            String registrationEndDate = value.get("registrationEndDate") != null ? value.get("registrationEndDate").toString() : null;
+                            int entrantLimit = value.get("entrantLimit") instanceof Number ? ((Number) value.get("entrantLimit")).intValue() : AppConstants.UNLIMITED_ENTRANTS;
+                            String poster = value.get("poster") != null ? value.get("poster").toString() : null;
+                            String tag = value.get("tag") != null ? value.get("tag").toString() : null;
+                            Boolean geoRequired = value.get("geolocationRequired") instanceof Boolean ? (Boolean) value.get("geolocationRequired") : false;
+                            String entrantId = value.get("entrantId") != null ? value.get("entrantId").toString() : "";
+                            
+                            Event e = new Event(entrantId, id, name, eventDetails, eventStartTime, eventEndTime,
+                                    eventStartDate, eventEndDate, registrationStartDate, registrationEndDate,
+                                    entrantLimit, poster, tag, geoRequired);
+                            eventDataList.add(e);
+                        }
+                    }
                 }
 
                 Log.i("im printing events", "" + eventDataList.size());

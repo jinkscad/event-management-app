@@ -189,25 +189,42 @@ public class Admin extends User {
                 List<Event> events = new ArrayList<>();
                 DataSnapshot snapshot = task.getResult();
                 for (DataSnapshot child : snapshot.getChildren()) {
-                    Log.i("friedchicken", child.getKey());
-                    HashMap<String, String> eventHash = (HashMap<String, String>) child.getValue();
-                    if (eventHash != null) {
-                        events.add(new Event(
-                                "e", // placeholder or type
-                                eventHash.get("id"),
-                                eventHash.get("name"),
-                                "d",
-                                eventHash.get("eventStartTime"), // placeholder
-                                eventHash.get("eventEndTime"),
-                                "s", // placeholder
-                                "w", // placeholder
-                                "q", // placeholder
-                                "f", // placeholder
-                                3,   // placeholder capacity
-                                "v", // placeholder
-                                "sa", // placeholder
-                                false // geolocationRequired
-                        ));
+                    String key = child.getKey();
+                    
+                    // Try Firebase deserialization first
+                    Event event = child.getValue(Event.class);
+                    if (event != null) {
+                        // Ensure the ID is set from the snapshot key
+                        if (event.getId() == null || event.getId().isEmpty()) {
+                            event.setId(key);
+                        }
+                        events.add(event);
+                    } else {
+                        // Fallback: manual construction if deserialization fails
+                        Object valueObj = child.getValue();
+                        if (valueObj instanceof HashMap) {
+                            @SuppressWarnings("unchecked")
+                            HashMap<String, Object> eventHash = (HashMap<String, Object>) valueObj;
+                            
+                            String id = eventHash.get("id") != null ? eventHash.get("id").toString() : key;
+                            String name = eventHash.get("name") != null ? eventHash.get("name").toString() : "";
+                            String eventDetails = eventHash.get("eventDetails") != null ? eventHash.get("eventDetails").toString() : "";
+                            String eventStartTime = eventHash.get("eventStartTime") != null ? eventHash.get("eventStartTime").toString() : "";
+                            String eventEndTime = eventHash.get("eventEndTime") != null ? eventHash.get("eventEndTime").toString() : "";
+                            String eventStartDate = eventHash.get("eventStartDate") != null ? eventHash.get("eventStartDate").toString() : null;
+                            String eventEndDate = eventHash.get("eventEndDate") != null ? eventHash.get("eventEndDate").toString() : null;
+                            String registrationStartDate = eventHash.get("registrationStartDate") != null ? eventHash.get("registrationStartDate").toString() : null;
+                            String registrationEndDate = eventHash.get("registrationEndDate") != null ? eventHash.get("registrationEndDate").toString() : null;
+                            int entrantLimit = eventHash.get("entrantLimit") instanceof Number ? ((Number) eventHash.get("entrantLimit")).intValue() : com.example.chicksevent.util.AppConstants.UNLIMITED_ENTRANTS;
+                            String poster = eventHash.get("poster") != null ? eventHash.get("poster").toString() : null;
+                            String tag = eventHash.get("tag") != null ? eventHash.get("tag").toString() : null;
+                            Boolean geoRequired = eventHash.get("geolocationRequired") instanceof Boolean ? (Boolean) eventHash.get("geolocationRequired") : false;
+                            String entrantId = eventHash.get("entrantId") != null ? eventHash.get("entrantId").toString() : "";
+                            
+                            events.add(new Event(entrantId, id, name, eventDetails, eventStartTime, eventEndTime,
+                                    eventStartDate, eventEndDate, registrationStartDate, registrationEndDate,
+                                    entrantLimit, poster, tag, geoRequired));
+                        }
                     }
                 }
                 return com.google.android.gms.tasks.Tasks.forResult(events);
