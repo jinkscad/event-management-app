@@ -28,7 +28,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Fragment displaying a list of available events and entry points to related actions.
@@ -58,8 +60,8 @@ public class EventFragment extends Fragment {
     /** Backing list for events rendered in the adapter. */
     private ArrayList<Event> eventDataList = new ArrayList<>();
 
-    /** Optional list of event ids used to filter the displayed set. */
-    private ArrayList<String> eventFilterList = new ArrayList<>();
+    /** Optional set of event ids used to filter the displayed set. Using HashSet for O(1) lookups. */
+    private Set<String> eventFilterSet = new HashSet<>();
 
     /** Whether a filter from arguments has been applied. */
     private Boolean filterApplied = false;
@@ -114,7 +116,10 @@ public class EventFragment extends Fragment {
         Bundle args = getArguments();
         if (args != null) {
             filterApplied = true;
-            eventFilterList = args.getStringArrayList("eventList");
+            ArrayList<String> filterList = args.getStringArrayList("eventList");
+            if (filterList != null) {
+                eventFilterSet = new HashSet<>(filterList);
+            }
             filterAvailability = args.getString("filterAvailability");
 
             // Use it to populate UI
@@ -171,7 +176,7 @@ public class EventFragment extends Fragment {
      * The method updates the list view with a new adapter instance containing the filtered set.
      */
     public void showJoinedEvents() {
-        ArrayList<String> arr = new ArrayList<>();
+        Set<String> eventIds = new HashSet<>();
         waitingListService.getReference().get().continueWith(task -> {
             for (DataSnapshot ds : task.getResult().getChildren()) {
                 try {
@@ -196,18 +201,14 @@ public class EventFragment extends Fragment {
 
 
 
+            // Convert to HashSet for O(1) lookups
+            Set<String> eventIdSet = new HashSet<>(eventIds);
+            
             ArrayList<Event> newEventDataList = new ArrayList<>();
             for (Event e : eventDataList) {
-                boolean keepEvent = false;
-                for (String eventIdFilter : arr) {
-                    if (eventIdFilter.equals(e.getId())) {
-                        keepEvent = true;
-                    }
-                }
-                if (keepEvent) {
+                if (eventIdSet.contains(e.getId())) {  // O(1) lookup instead of O(n)
                     newEventDataList.add(e);
                 }
-
             }
 
             Log.i("RTD10", "" + newEventDataList.size());
@@ -232,7 +233,7 @@ public class EventFragment extends Fragment {
 
 
     /**
-     * Lists only the events whose ids are present in {@link #eventFilterList}. Results are read
+     * Lists only the events whose ids are present in {@link #eventFilterSet}. Results are read
      * in one shot from the <code>Event</code> root and bound to the list view.
      */
     public void listFilteredEvents() {
@@ -251,7 +252,7 @@ public class EventFragment extends Fragment {
                 for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                     String key = childSnapshot.getKey();
                     
-                    if (!eventFilterList.contains(key)) {
+                    if (!eventFilterSet.contains(key)) {  // O(1) lookup with HashSet
                         continue;
                     }
 

@@ -7,19 +7,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.chicksevent.R;
 import com.example.chicksevent.misc.Event;
 import com.example.chicksevent.misc.FirebaseService;
+import com.example.chicksevent.util.DateFormatter;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 
 /**
  * Custom {@link EventAdapter} subclass for displaying events
@@ -30,8 +28,21 @@ public class EventAdapter extends ArrayAdapter<Event> {
     OnItemButtonClickListener listener;
     FirebaseService imageService = new FirebaseService("Image");
 
-    HostedEventAdapter.ViewHolder holder;
     private final HashMap<String, String> imageCache = new HashMap<>();
+    
+    /**
+     * ViewHolder pattern to cache view references and avoid repeated findViewById() calls.
+     */
+    static class ViewHolder {
+        ImageView posterImageView;
+        TextView status;
+        TextView eventName;
+        TextView startTime;
+        TextView endTime;
+        TextView date;
+        ImageButton arrowButton;
+        String eventId; // Track which event this view belongs to
+    }
 
 
     /**
@@ -69,38 +80,30 @@ public class EventAdapter extends ArrayAdapter<Event> {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.i("sigma", "old one");
         View view;
-        HostedEventAdapter.ViewHolder holder;
-//        if (convertView == null) {
-//            view = LayoutInflater.from(getContext()).inflate(R.layout.item_event, parent, false);
-//        } else {
-//            view = convertView;
-//        }
-
+        ViewHolder holder;
 
         if (convertView == null) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.item_event, parent, false);
-            holder = new HostedEventAdapter.ViewHolder();
+            holder = new ViewHolder();
+            // Cache all view references to avoid repeated findViewById() calls
             holder.posterImageView = view.findViewById(R.id.img_event);
+            holder.status = view.findViewById(R.id.tv_status);
+            holder.eventName = view.findViewById(R.id.tv_event_name);
+            holder.startTime = view.findViewById(R.id.tv_startTime);
+            holder.endTime = view.findViewById(R.id.tv_endTime);
+            holder.date = view.findViewById(R.id.tv_date);
+            holder.arrowButton = view.findViewById(R.id.btn_arrow);
             view.setTag(holder);
         } else {
-            holder = (HostedEventAdapter.ViewHolder) convertView.getTag();
+            holder = (ViewHolder) convertView.getTag();
             view = convertView;
         }
 
-
         Event event = getItem(position);
-
-        TextView status = view.findViewById(R.id.tv_status);
-        TextView event_name = view.findViewById(R.id.tv_event_name);
-        TextView tv_startTime = view.findViewById(R.id.tv_startTime);
-        TextView tv_endTime = view.findViewById(R.id.tv_endTime);
-        TextView tv_date = view.findViewById(R.id.tv_date);
-        ImageButton btn_arrow = view.findViewById(R.id.btn_arrow);
-//        ImageView posterImageView = view.findViewById(R.id.img_event);
-
-        Log.i("what id ", event.getId());
+        if (event == null) {
+            return view;
+        }
 
         holder.posterImageView.setImageResource(R.drawable.sample_image);
         holder.eventId = event.getId();
@@ -141,45 +144,30 @@ public class EventAdapter extends ArrayAdapter<Event> {
 
 
 
-        // ----- Format tv_date as "MMM\ndd" -----
+        // ----- Format tv_date as "MMM\ndd" using DateFormatter utility -----
         String startDateStr = event.getEventStartDate(); // e.g., "03-15-2025"
 
-        if (startDateStr != null) {
-            try {
-                // Parse incoming date
-                SimpleDateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy", Locale.ENGLISH);
-                Date date = inputFormat.parse(startDateStr);
-
-                // Format month abbreviation (uppercase)
-                SimpleDateFormat monthFormat = new SimpleDateFormat("MMM", Locale.ENGLISH);
-                String month = monthFormat.format(date).toUpperCase(); // "MAR"
-
-                // Format day
-                SimpleDateFormat dayFormat = new SimpleDateFormat("d", Locale.ENGLISH);
-                String day = dayFormat.format(date); // "15"
-
-                // Combine exactly like your fragment
-                String display = month + "\n" + day;
-
-                tv_date.setText(display);
-
-            } catch (ParseException e) {
-                Log.e(TAG, "Failed to parse date: " + startDateStr, e);
-                tv_date.setText(startDateStr); // fallback
+        if (startDateStr != null && !startDateStr.isEmpty()) {
+            String[] monthDay = DateFormatter.parseDateToMonthDay(startDateStr);
+            if (monthDay != null && monthDay.length == 2) {
+                String display = monthDay[0] + "\n" + monthDay[1]; // "MAR\n15"
+                holder.date.setText(display);
+            } else {
+                holder.date.setText(startDateStr); // fallback
             }
         } else {
-            tv_date.setText(""); // or "N/A"
+            holder.date.setText(""); // or "N/A"
         }
 
 
 
 
 
-        event_name.setText(event.getName());
-        tv_startTime.setText(event.getEventStartTime());
-        tv_endTime.setText(event.getEventEndTime());
+        holder.eventName.setText(event.getName());
+        holder.startTime.setText(event.getEventStartTime());
+        holder.endTime.setText(event.getEventEndTime());
 
-        btn_arrow.setOnClickListener(l -> {
+        holder.arrowButton.setOnClickListener(l -> {
             if (listener != null) listener.onItemButtonClick(event);
         });
         return view;
