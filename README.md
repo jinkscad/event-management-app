@@ -30,18 +30,6 @@ A comprehensive Android application for managing events, waiting lists, and part
 - **Image Loading**: Glide
 - **Architecture**: Fragment-based with Navigation Component
 
-## Project Structure
-
-```
-code/app/src/main/java/com/example/chicksevent/
-├── adapter/          # RecyclerView/ListView adapters
-├── enums/            # Enumeration classes
-├── fragment/         # User-facing fragments
-├── fragment_admin/   # Admin panel fragments
-├── fragment_org/     # Organizer fragments
-├── misc/             # Domain models (Event, User, Entrant, etc.)
-└── util/             # Utility classes (QRCodeGenerator, DateFormatter, etc.)
-```
 
 ## Setup Instructions
 
